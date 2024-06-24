@@ -26,5 +26,16 @@ pipeline {
                 }
             }
         }
+        stage('Push to DockerHub') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com','docker_credentials')
+                    dockerImage.push("latest")
+                }
+            }
+        }
     }
 }
