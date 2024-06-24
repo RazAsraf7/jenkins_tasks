@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        kubernetes{
+        kubernetes {
             yamlFile 'build-pod.yaml'
             defaultContainer 'ez-docker-helm-build'
         }
@@ -21,7 +21,9 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                dockerImage = docker.build("${DOCKER_IMAGE}:latest", "--no-cache .")
+                script {
+                    dockerImage = docker.build("${DOCKER_IMAGE}:latest", "--no-cache .")
+                }
             }
         }
     }
