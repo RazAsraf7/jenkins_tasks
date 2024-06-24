@@ -17,6 +17,9 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 checkout scm
+                script {
+                    echo "Branch Name: ${env.BRANCH_NAME}"
+                }
             }
         }
         stage('Build Docker Image') {
@@ -26,9 +29,11 @@ pipeline {
                 }
             }
         }
-        stage('Push Docker image') {
+        stage('Push Docker Image') {
             when {
-                branch 'main'
+                expression {
+                    env.BRANCH_NAME == 'main'
+                }
             }
             steps {
                 script {
