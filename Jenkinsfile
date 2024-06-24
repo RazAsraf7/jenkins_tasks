@@ -32,8 +32,9 @@ pipeline {
             }
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com','docker_credentials')
+                    docker.withRegistry('https://registry.hub.docker.com','docker_credentials') {
                     dockerImage.push("latest")
+                    }
                 }
             }
         }
