@@ -26,14 +26,14 @@ pipeline {
                 }
             }
         }
-        stage('Push to DockerHub') {
+        stage('Push Docker image') {
             when {
                 branch 'main'
             }
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com','docker_credentials') {
-                    dockerImage.push("latest")
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker_credentials') {
+                        dockerImage.push("latest")
                     }
                 }
             }
