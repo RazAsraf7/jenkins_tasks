@@ -43,5 +43,36 @@ pipeline {
                 }
             }
         }
+        stage('Create Pull Request') {
+            when {
+                not {
+                    branch 'main'
+                }
+            }
+            steps {
+                script {
+                    def pullRequestTitle = "Merge ${env.BRANCH_NAME} to main"
+                    def pullRequestBody = "This is an automated pull request from Jenkins."
+                    
+                    def data = [
+                        title: pullRequestTitle,
+                        head: env.BRANCH_NAME,
+                        base: 'main',
+                        body: pullRequestBody
+                    ]
+
+                    def json = new groovy.json.JsonBuilder(data).toPrettyString()
+
+                    httpRequest(
+                        url: "${GITHUB_API_URL}/repos/${GITHUB_REPO}/pulls",
+                        httpMode: 'POST',
+                        contentType: 'APPLICATION_JSON',
+                        customHeaders: [[name: 'Authorization', value: "token ${GITHUB_TOKEN}"]],
+                        requestBody: json,
+                        validResponseCodes: '201'
+                    )
+                }
+            }
+        }
     }
 }
