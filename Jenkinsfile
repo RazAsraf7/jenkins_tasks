@@ -43,34 +43,25 @@ pipeline {
                 }
             }
         }
-        stage('Create Pull Request') {
+        stage('Create merge request'){
             when {
                 not {
                     branch 'main'
                 }
             }
             steps {
-                script {
-                    def pullRequestTitle = "Merge ${env.BRANCH_NAME} to main"
-                    def pullRequestBody = "This is an automated pull request from Jenkins."
-                    
-                    def data = [
-                        title: pullRequestTitle,
-                        head: env.BRANCH_NAME,
-                        base: 'main',
-                        body: pullRequestBody
-                    ]
+                withCredentials([string(credentialsId: 'github-creds', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        def branchName = env.BRANCH_NAME
+                        def pullRequestTitle = "Merge ${branchName} into main"
+                        def pullRequestBody = "Automatically generated merge request for branch ${branchName}"
 
-                    def json = new groovy.json.JsonBuilder(data).toPrettyString()
-
-                    httpRequest(
-                        url: "${GITHUB_API_URL}/repos/${GITHUB_REPO}/pulls",
-                        httpMode: 'POST',
-                        contentType: 'APPLICATION_JSON',
-                        customHeaders: [[name: 'Authorization', value: "token ${GITHUB_TOKEN}"]],
-                        requestBody: json,
-                        validResponseCodes: '201'
-                    )
+                        sh """
+                            curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" \
+                            -d '{ "title": "${pullRequestTitle}", "body": "${pullRequestBody}", "head": "${branchName}", "base": "main" }' \
+                            ${GITHUB_API_URL}/repos/${GITHUB_REPO}/pulls
+                        """
+                    }
                 }
             }
         }
